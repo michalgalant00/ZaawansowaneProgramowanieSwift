@@ -10,6 +10,7 @@ import SwiftUI
 class WordleViewModel: ObservableObject {
     @Published private var model = WordleModel()
     @Published var correctGuessAnimationState: [Bool] = Array(repeating: false, count: 6)
+    @Published var animationState: [Bool] = Array(repeating: false, count: 30)
 
     var secretWord: String {
         model.secretWord
@@ -31,9 +32,6 @@ class WordleViewModel: ObservableObject {
     var alertMessage: String {
         get { model.alertMessage }
         set { model.alertMessage = newValue }
-    }
-    var animationState: [Bool] {
-        model.animationState
     }
 
     func letter(at index: Int, letterIndex: Int) -> String {
@@ -61,24 +59,25 @@ class WordleViewModel: ObservableObject {
         guard model.currentGuess.count == 5 else { return }
 
         model.guesses[model.attempt] = model.currentGuess.lowercased()
+        let currentAttempt = model.attempt
         for i in 0..<5 {
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.2) {
-                self.model.animationState[self.model.attempt * 5 + i] = true
+                self.setAnimationState(at: currentAttempt * 5 + i, to: true)
             }
         }
         if model.currentGuess.lowercased() == model.secretWord {
-            for i in 0..<5 {
-                DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.1) {
-                    self.correctGuessAnimationState[self.model.attempt] = true
-                }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self.correctGuessAnimationState[currentAttempt] = true
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
                 self.model.alertMessage = "Brawo! Zgadłeś słowo: \(self.model.secretWord)."
                 self.model.showAlert = true
             }
         } else if model.attempt == 5 {
-            model.alertMessage = "Niestety, przegrałeś. Sekretne słowo to: \(model.secretWord)."
-            model.showAlert = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self.model.alertMessage = "Niestety, przegrałeś. Sekretne słowo to: \(self.model.secretWord)."
+                self.model.showAlert = true
+            }
         }
 
         model.currentGuess = ""
@@ -88,5 +87,9 @@ class WordleViewModel: ObservableObject {
     func resetGame() {
         model = WordleModel()
         correctGuessAnimationState = Array(repeating: false, count: 6)
+    }
+
+    func setAnimationState(at index: Int, to value: Bool) {
+        animationState[index] = value
     }
 }

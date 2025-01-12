@@ -57,6 +57,21 @@ struct ContentView: View {
         .alert(isPresented: $viewModel.showAlert) {
             Alert(title: Text("Koniec gry"), message: Text(viewModel.alertMessage), dismissButton: .default(Text("OK"), action: viewModel.resetGame))
         }
+        .gesture(
+            DragGesture(minimumDistance: 50, coordinateSpace: .local)
+                .onEnded { value in
+                    if value.translation.height > 0 {
+                        viewModel.showNewGameModal = true
+                    }
+                }
+        )
+        .alert(isPresented: $viewModel.showNewGameModal) {
+            Alert(
+                title: Text("Czy chcesz rozpocząć nową grę?"),
+                primaryButton: .default(Text("TAK"), action: viewModel.startNewGame),
+                secondaryButton: .cancel(Text("ANULUJ"))
+            )
+        }
     }
 }
 

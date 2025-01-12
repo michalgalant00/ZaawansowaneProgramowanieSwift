@@ -11,6 +11,7 @@ class WordleViewModel: ObservableObject {
     @Published private var model = WordleModel()
     @Published var correctGuessAnimationState: [Bool] = Array(repeating: false, count: 6)
     @Published var animationState: [Bool] = Array(repeating: false, count: 30)
+    @Published var showNewGameModal: Bool = false
 
     var secretWord: String {
         model.secretWord
@@ -91,5 +92,10 @@ class WordleViewModel: ObservableObject {
 
     func setAnimationState(at index: Int, to value: Bool) {
         animationState[index] = value
+    }
+
+    func startNewGame() {
+        resetGame()
+        showNewGameModal = false
     }
 }

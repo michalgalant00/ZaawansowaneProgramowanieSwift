@@ -57,7 +57,7 @@ struct ContentView: View {
         }
         .padding()
         // Alert for end of game
-        .alert(isPresented: $viewModel.showAlert) {
+        .alert(isPresented: $viewModel.showEndGameModal) {
             Alert(title: Text("Koniec gry"), message: Text(viewModel.alertMessage), dismissButton: .default(Text("OK"), action: viewModel.resetGame))
         }
         // Gesture for starting a new game

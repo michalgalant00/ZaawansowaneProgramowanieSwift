@@ -12,6 +12,7 @@ class WordleViewModel: ObservableObject {
     @Published var correctGuessAnimationState: [Bool] = Array(repeating: false, count: 6)
     @Published var animationState: [Bool] = Array(repeating: false, count: 30)
     @Published var showNewGameModal: Bool = false
+    @Published var showEndGameModal: Bool = false
 
     // Accessors for model properties
     var secretWord: String {
@@ -77,13 +78,13 @@ class WordleViewModel: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
                 self.model.alertMessage = "Brawo! Zgadłeś słowo: \(self.model.secretWord)."
                 self.model.showAlert = true
-                self.showNewGameModal = true
+                self.showEndGameModal = true
             }
         } else if model.attempt == 5 {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 self.model.alertMessage = "Niestety, przegrałeś. Sekretne słowo to: \(self.model.secretWord)."
                 self.model.showAlert = true
-                self.showNewGameModal = true
+                self.showEndGameModal = true
             }
         }
 
@@ -107,5 +108,6 @@ class WordleViewModel: ObservableObject {
     func startNewGame() {
         resetGame()
         showNewGameModal = false
+        showEndGameModal = false
     }
 }

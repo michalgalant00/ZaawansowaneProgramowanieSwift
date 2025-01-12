@@ -7,7 +7,7 @@ struct GuessRowView: View {
     var body: some View {
         HStack {
             ForEach(0..<5, id: \.self) { letterIndex in
-                let isFlipped = $viewModel.animationStates.flipCards[index * 5 + letterIndex]
+                let isFlipped = $viewModel.flipAnimationStates[index * 5 + letterIndex]
                 let front = {
                     Text(viewModel.letter(at: index, column: letterIndex))
                         .frame(width: 50, height: 50)

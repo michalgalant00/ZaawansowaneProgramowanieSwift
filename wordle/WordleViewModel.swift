@@ -22,8 +22,13 @@ class WordleViewModel: ObservableObject {
     
     var attempt: Int { model.attempt }
     var guesses: [String] { model.guesses }
-    var flipAnimationStates: [Bool] { model.animationStates.flipCards }
-    var correctGuessAnimationStates: [Bool] { model.animationStates.correctGuessRows }
+    var flipAnimationStates: [Bool] {
+        model.animationStates.flipCards
+    }
+    
+    var correctGuessAnimationStates: [Bool] {
+        model.animationStates.correctGuessRows
+    }
     
     var showAlert: Bool {
         get { model.gameState != .playing }

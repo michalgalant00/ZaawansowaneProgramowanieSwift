@@ -9,7 +9,7 @@ import Foundation
 
 struct WordleModel {
     let possibleWords = ["apple", "grape", "melon", "peach", "berry"]
-    var secretWord: String = possibleWords.randomElement()!
+    var secretWord: String
     var guesses: [String] = Array(repeating: "", count: 6)
     var currentGuess: String = ""
     var attempt: Int = 0
@@ -26,7 +26,7 @@ struct WordleModel {
         }
     }
     
-    enum GameState {
+    enum GameState : Comparable {
         case playing
         case won(String)
         case lost(String)
@@ -48,5 +48,14 @@ struct WordleModel {
             case .playing: return ""
             }
         }
+    }
+
+    init() {
+        self.secretWord = possibleWords.randomElement()!
+        self.guesses = Array(repeating: "", count: 6)
+        self.currentGuess = ""
+        self.attempt = 0
+        self.gameState = .playing
+        self.animationStates = AnimationStates()
     }
 }

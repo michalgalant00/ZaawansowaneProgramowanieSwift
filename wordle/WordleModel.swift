@@ -10,11 +10,11 @@ import Foundation
 struct WordleModel {
     let possibleWords = ["apple", "grape", "melon", "peach", "berry"]
     var secretWord: String
-    var guesses: [String] = Array(repeating: "", count: 6)
-    var currentGuess: String = ""
-    var attempt: Int = 0
-    var gameState: GameState = .playing
-    var animationStates: AnimationStates = AnimationStates()
+    var guesses: [String]
+    var currentGuess: String
+    var attempt: Int
+    var gameState: GameState
+    var animationStates: AnimationStates
     
     struct AnimationStates {
         var flipCards: [Bool]

@@ -76,12 +76,12 @@ class WordleViewModel: ObservableObject {
         model.guesses[model.attempt] = model.currentGuess
         animateGuess()
         
+        model.attempt += 1
+        
         if model.currentGuess == model.secretWord {
             handleWin()
-        } else if model.attempt == 5 {
+        } else if model.attempt == 6 {
             handleLoss()
-        } else {
-            model.attempt += 1
         }
         
         model.currentGuess = ""
@@ -116,7 +116,7 @@ class WordleViewModel: ObservableObject {
     private func handleWin() {
         let currentAttempt = model.attempt
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.model.animationStates.correctGuessRows[currentAttempt] = true
+            self.model.animationStates.correctGuessRows[currentAttempt-1] = true
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
             self.model.gameState = .won(self.model.secretWord)

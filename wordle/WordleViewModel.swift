@@ -8,105 +8,117 @@
 import SwiftUI
 
 class WordleViewModel: ObservableObject {
-    @Published private var model = WordleModel()
-    @Published var correctGuessAnimationState: [Bool] = Array(repeating: false, count: 6)
-    @Published var animationState: [Bool] = Array(repeating: false, count: 30)
-    @Published var showNewGameModal: Bool = false
-    @Published var showEndGameModal: Bool = false
-    @Published var endGameMessage: String = ""
-
-    // Accessors for model properties
-    var secretWord: String {
-        model.secretWord
+    @Published private var model: WordleModel
+    
+    init() {
+        self.model = WordleModel()
     }
-    var guesses: [String] {
-        model.guesses
-    }
+    
+    // MARK: - Public Properties
     var currentGuess: String {
         get { model.currentGuess }
-        set { model.currentGuess = newValue }
+        set { model.currentGuess = newValue.lowercased() }
     }
-    var attempt: Int {
-        model.attempt
-    }
+    
+    var attempt: Int { model.attempt }
+    var guesses: [String] { model.guesses }
+    var flipAnimationStates: [Bool] { model.animationStates.flipCards }
+    var correctGuessAnimationStates: [Bool] { model.animationStates.correctGuessRows }
+    
     var showAlert: Bool {
-        get { model.showAlert }
-        set { model.showAlert = newValue }
-    }
-    var alertMessage: String {
-        get { model.alertMessage }
-        set { model.alertMessage = newValue }
-    }
-
-    // Get the letter at a specific index
-    func letter(at index: Int, letterIndex: Int) -> String {
-        guard index < model.attempt else { return "" }
-        let guessArray = Array(model.guesses[index])
-        return letterIndex < guessArray.count ? String(guessArray[letterIndex]) : ""
-    }
-
-    // Get the color for a specific letter
-    func color(at index: Int, letterIndex: Int) -> Color {
-        guard index < model.attempt else { return Color.gray }
-        let guessArray = Array(model.guesses[index])
-        let secretArray = Array(model.secretWord)
-        guard letterIndex < guessArray.count else { return Color.gray }
-
-        if guessArray[letterIndex] == secretArray[letterIndex] {
-            return Color.green
-        } else if model.secretWord.contains(guessArray[letterIndex]) {
-            return Color.yellow
-        } else {
-            return Color.gray
+        get { model.gameState != .playing }
+        set { 
+            if !newValue { 
+                model.gameState = .playing 
+            }
         }
     }
-
-    // Submit the current guess
+    
+    var alertTitle: String { model.gameState.alertTitle }
+    var alertMessage: String { model.gameState.alertMessage }
+    
+    var shouldShowConfirmButtons: Bool {
+        if case .confirmingReset = model.gameState { return true }
+        return false
+    }
+    
+    // MARK: - Public Methods
+    func letter(at row: Int, column: Int) -> String {
+        guard row < model.attempt else { return "" }
+        let guessArray = Array(model.guesses[row])
+        return column < guessArray.count ? String(guessArray[column]) : ""
+    }
+    
+    func color(at row: Int, column: Int) -> Color {
+        guard row < model.attempt else { return .gray }
+        let guessArray = Array(model.guesses[row])
+        let secretArray = Array(model.secretWord)
+        guard column < guessArray.count else { return .gray }
+        
+        if guessArray[column] == secretArray[column] {
+            return .green
+        } else if model.secretWord.contains(guessArray[column]) {
+            return .yellow
+        }
+        return .gray
+    }
+    
     func submitGuess() {
         guard model.currentGuess.count == 5 else { return }
-
-        model.guesses[model.attempt] = model.currentGuess.lowercased()
+        
+        model.guesses[model.attempt] = model.currentGuess
+        animateGuess()
+        
+        if model.currentGuess == model.secretWord {
+            handleWin()
+        } else if model.attempt == 5 {
+            handleLoss()
+        } else {
+            model.attempt += 1
+        }
+        
+        model.currentGuess = ""
+    }
+    
+    func initiateGameReset() {
+        model.gameState = .confirmingReset
+    }
+    
+    func confirmGameReset() {
+        resetGame()
+    }
+    
+    func setAnimationState(at index: Int, to value: Bool) {
+        model.animationStates.flipCards[index] = value
+    }
+    
+    // MARK: - Private Methods
+    private func resetGame() {
+        model = WordleModel()
+    }
+    
+    private func animateGuess() {
         let currentAttempt = model.attempt
         for i in 0..<5 {
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.2) {
                 self.setAnimationState(at: currentAttempt * 5 + i, to: true)
             }
         }
-        if model.currentGuess.lowercased() == model.secretWord {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self.correctGuessAnimationState[currentAttempt] = true
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
-                self.endGameMessage = "Brawo! Zgadłeś słowo: \(self.model.secretWord)."
-                self.showEndGameModal = true
-            }
-        } else if model.attempt == 5 {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                self.endGameMessage = "Niestety, przegrałeś. Sekretne słowo to: \(self.model.secretWord)."
-                self.showEndGameModal = true
-            }
+    }
+    
+    private func handleWin() {
+        let currentAttempt = model.attempt
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.model.animationStates.correctGuessRows[currentAttempt] = true
         }
-
-        model.currentGuess = ""
-        model.attempt += 1
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            self.model.gameState = .won(self.model.secretWord)
+        }
     }
-
-    // Reset the game
-    func resetGame() {
-        model = WordleModel()
-        correctGuessAnimationState = Array(repeating: false, count: 6)
-        animationState = Array(repeating: false, count: 30)
-    }
-
-    // Set the animation state for a specific index
-    func setAnimationState(at index: Int, to value: Bool) {
-        animationState[index] = value
-    }
-
-    // Start a new game
-    func startNewGame() {
-        resetGame()
-        showNewGameModal = false
-        showEndGameModal = false
+    
+    private func handleLoss() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.model.gameState = .lost(self.model.secretWord)
+        }
     }
 }

@@ -77,11 +77,13 @@ class WordleViewModel: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
                 self.model.alertMessage = "Brawo! Zgadłeś słowo: \(self.model.secretWord)."
                 self.model.showAlert = true
+                self.showNewGameModal = true
             }
         } else if model.attempt == 5 {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 self.model.alertMessage = "Niestety, przegrałeś. Sekretne słowo to: \(self.model.secretWord)."
                 self.model.showAlert = true
+                self.showNewGameModal = true
             }
         }
 
@@ -93,6 +95,7 @@ class WordleViewModel: ObservableObject {
     func resetGame() {
         model = WordleModel()
         correctGuessAnimationState = Array(repeating: false, count: 6)
+        animationState = Array(repeating: false, count: 30)
     }
 
     // Set the animation state for a specific index

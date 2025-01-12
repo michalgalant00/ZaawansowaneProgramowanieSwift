@@ -16,6 +16,7 @@ struct WordleModel {
     var alertMessage: String
     var animationState: [Bool]
 
+    // Initialize the model with default values
     init() {
         self.secretWord = ["apple", "grape", "melon", "peach", "berry"].randomElement()!
         self.guesses = Array(repeating: "", count: 6)

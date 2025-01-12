@@ -12,6 +12,7 @@ struct ContentView: View {
 
     var body: some View {
         VStack {
+            // Title of the game
             Text("Wordle")
                 .font(.largeTitle)
                 .bold()
@@ -19,14 +20,14 @@ struct ContentView: View {
 
             Spacer()
 
-            // Wyświetlanie wyników zgadywania
+            // Displaying the guesses
             ForEach(0..<6, id: \.self) { index in
                 GuessRowView(index: index, viewModel: viewModel)
             }
 
             Spacer()
 
-            // Pole tekstowe do wpisywania zgadywanego słowa
+            // Text field for entering the guessed word
             TextField("Wpisz 5-literowe słowo", text: $viewModel.currentGuess)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
@@ -39,6 +40,7 @@ struct ContentView: View {
                     viewModel.submitGuess()
                 }
 
+            // Button to submit the guess
             Button(action: viewModel.submitGuess) {
                 Text("Zatwierdź")
                     .font(.headline)
@@ -54,9 +56,11 @@ struct ContentView: View {
             Spacer()
         }
         .padding()
+        // Alert for end of game
         .alert(isPresented: $viewModel.showAlert) {
             Alert(title: Text("Koniec gry"), message: Text(viewModel.alertMessage), dismissButton: .default(Text("OK"), action: viewModel.resetGame))
         }
+        // Gesture for starting a new game
         .gesture(
             DragGesture(minimumDistance: 50, coordinateSpace: .local)
                 .onEnded { value in
@@ -65,6 +69,7 @@ struct ContentView: View {
                     }
                 }
         )
+        // Alert for confirming new game
         .alert(isPresented: $viewModel.showNewGameModal) {
             Alert(
                 title: Text("Czy chcesz rozpocząć nową grę?"),

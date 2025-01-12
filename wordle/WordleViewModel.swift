@@ -13,6 +13,7 @@ class WordleViewModel: ObservableObject {
     @Published var animationState: [Bool] = Array(repeating: false, count: 30)
     @Published var showNewGameModal: Bool = false
 
+    // Accessors for model properties
     var secretWord: String {
         model.secretWord
     }
@@ -35,12 +36,14 @@ class WordleViewModel: ObservableObject {
         set { model.alertMessage = newValue }
     }
 
+    // Get the letter at a specific index
     func letter(at index: Int, letterIndex: Int) -> String {
         guard index < model.attempt else { return "" }
         let guessArray = Array(model.guesses[index])
         return letterIndex < guessArray.count ? String(guessArray[letterIndex]) : ""
     }
 
+    // Get the color for a specific letter
     func color(at index: Int, letterIndex: Int) -> Color {
         guard index < model.attempt else { return Color.gray }
         let guessArray = Array(model.guesses[index])
@@ -56,6 +59,7 @@ class WordleViewModel: ObservableObject {
         }
     }
 
+    // Submit the current guess
     func submitGuess() {
         guard model.currentGuess.count == 5 else { return }
 
@@ -85,15 +89,18 @@ class WordleViewModel: ObservableObject {
         model.attempt += 1
     }
 
+    // Reset the game
     func resetGame() {
         model = WordleModel()
         correctGuessAnimationState = Array(repeating: false, count: 6)
     }
 
+    // Set the animation state for a specific index
     func setAnimationState(at index: Int, to value: Bool) {
         animationState[index] = value
     }
 
+    // Start a new game
     func startNewGame() {
         resetGame()
         showNewGameModal = false

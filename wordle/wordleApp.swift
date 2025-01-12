@@ -11,6 +11,7 @@ import SwiftUI
 struct wordleApp: App {
     var body: some Scene {
         WindowGroup {
+            // Initialize the ContentView with WordleViewModel
             ContentView(viewModel: WordleViewModel())
         }
     }
